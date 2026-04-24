@@ -433,6 +433,35 @@ def message_cs(m):
     keyboard.press_and_release(csmsgbind)
     print("SENT MESSAGE\n"+m)
 
+def echo_rcon(m):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((HOST, PORT))
+
+        message = msgpacket(rconpassword, 3)
+        s.send(message)     # Send packet
+        data = s.recv(1024)             # Receive packet
+        # print(f"Received from server: {data}")
+
+        time.sleep(.5)
+
+        message=msgpacket("echo \x22" + m + "\x22", 2)
+        s.send(message)     # Send packet
+        data = s.recv(4096)             # Receive packet
+        # print(f"Received from server: {data}")
+
+def echo_cs(m):
+    with open(path_cs_cfg, "w") as f:
+        f.write("echo \"" + m + "\"")
+    time.sleep(0.5)
+    keyboard.press_and_release(csmsgbind)
+    print("SENT MESSAGE\n"+m)
+
+def echo_game(m)
+    if sys.argv[1] == "tf":
+        echo_rcon(m)
+    elif sys.argv[1] == "cs":
+        echo_cs(m)
+
 def command_cat(args):
     currentfactindex=random.randint(0,len(catfacts)-1)
     currentfact = catfacts[currentfactindex]
@@ -458,6 +487,19 @@ def command_dog(args):
 def command_killcat(a):
     raise ValueError("KILLING CAT")
 
+doprompt = True
+
+def command_prompton(a):
+    global doprompt
+    doprompt = True
+    print("PROMPT ON")
+    echo_game("PROMPT ON")
+def command_promptoff(a):
+    global doprompt
+    doprompt = False
+    print("PROMPT OFF")
+    echo_game("PROMPT OFF")
+
 cat_index = commandstring + "!cat"
 dog_index = commandstring + "!dog"
 
@@ -465,7 +507,9 @@ commands = {
     cat_index: command_cat,
     dog_index: command_dog,
     "killcat": command_killcat,
-    exitstring: command_killcat
+    exitstring: command_killcat,
+    "caton": command_prompton,
+    "catoff": command_promptoff
 }
 
 for index, command in commands.items():
@@ -475,7 +519,7 @@ for new_line in follow(path_use):
     print(new_line, end='')
     # global stuffcounter
     curtime = int(time.time())
-    if curtime>lasttime+interval:
+    if (curtime>lasttime+interval) and doprompt==True:
         if sys.argv[1] == "tf":
             message="type !cat for a random cat fact!"
             message_rcon(message)
