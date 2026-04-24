@@ -278,6 +278,11 @@ path_cs_cfg = ""
 
 rconpassword = ""
 
+debugmode = False
+if len(sys.argv)>=3:
+    if sys.argv[2] == "debug":
+        debugmode = True
+
 try:
     with open("catsettings.txt", "r") as f:
         content = f.read()
@@ -410,6 +415,30 @@ else:
     commandstring = ": "
     exitstring = "Source2Shutdown"
 
+bot_ident = "\x10\x10\x10"  # used to detect other script users, shutdown all but one
+
+statuscommand = b"\x10\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x73\x74\x61\x74\x75\x73\x00\x00"
+
+def command_rcon(m):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        #time.sleep(3)
+        s.connect((HOST, PORT))
+
+        message = msgpacket(rconpassword, 3)
+        s.send(message)     # Send packet
+        data = s.recv(1024)             # Receive packet
+        # print(f"Received from server: {data}")
+
+        time.sleep(.5)
+
+        message=msgpacket(m, 2)
+        s.send(message)     # Send packet
+        # print(message)
+        # print(statuscommand)
+        data = s.recv(4096)             # Receive packet
+        # print(f"Received from server: {data}")
+        # return data
+
 def message_rcon(m):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((HOST, PORT))
@@ -421,7 +450,7 @@ def message_rcon(m):
 
         time.sleep(.5)
 
-        message=msgpacket("say \x22" + m + "\x22", 2)
+        message=msgpacket("say \x22" + bot_ident + m + "\x22", 2)
         s.send(message)     # Send packet
         data = s.recv(4096)             # Receive packet
         # print(f"Received from server: {data}")
@@ -433,6 +462,7 @@ def message_cs(m):
     keyboard.press_and_release(csmsgbind)
     print("SENT MESSAGE\n"+m)
 
+# THESE DONT WORK
 def echo_rcon(m):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((HOST, PORT))
@@ -440,23 +470,22 @@ def echo_rcon(m):
         message = msgpacket(rconpassword, 3)
         s.send(message)     # Send packet
         data = s.recv(1024)             # Receive packet
-        # print(f"Received from server: {data}")
+        print(f"Received from server: {data}")
 
         time.sleep(.5)
 
         message=msgpacket("echo \x22" + m + "\x22", 2)
+        print(message)
         s.send(message)     # Send packet
         data = s.recv(4096)             # Receive packet
-        # print(f"Received from server: {data}")
-
-def echo_cs(m):
+        print(f"Received from server: {data}")
+def echo_cs(m): # THESE DONT WORK
     with open(path_cs_cfg, "w") as f:
         f.write("echo \"" + m + "\"")
     time.sleep(0.5)
     keyboard.press_and_release(csmsgbind)
     print("SENT MESSAGE\n"+m)
-
-def echo_game(m):
+def echo_game(m):   # THESE DONT WORK
     if sys.argv[1] == "tf":
         echo_rcon(m)
     elif sys.argv[1] == "cs":
@@ -487,21 +516,30 @@ def command_dog(args):
 def command_killcat(a):
     raise ValueError("KILLING CAT")
 
+def ident_handle(a):
+    localid = 0#math.randint(1,1000)
+
+def getlocalplayerid(a):
+    command_rcon("exec sendstatus")
+    # print(statustext)
+
 doprompt = True
 
 def command_prompton(a):
     global doprompt
     doprompt = True
     print("PROMPT ON")
-    echo_game("PROMPT ON")
+    # echo_game("PROMPT ON")
 def command_promptoff(a):
     global doprompt
     doprompt = False
     print("PROMPT OFF")
-    echo_game("PROMPT OFF")
+    # echo_game("PROMPT OFF")
 
 cat_index = commandstring + "!cat"
 dog_index = commandstring + "!dog"
+
+the_lightmaps_thing_the_console_prints_when_user_finishes_connecting_to_server = "Redownloading all lightmaps"
 
 commands = {
     cat_index: command_cat,
@@ -509,19 +547,22 @@ commands = {
     "killcat": command_killcat,
     exitstring: command_killcat,
     "caton": command_prompton,
-    "catoff": command_promptoff
+    "catoff": command_promptoff,
+    bot_ident: ident_handle,
+    the_lightmaps_thing_the_console_prints_when_user_finishes_connecting_to_server: getlocalplayerid
 }
 
 for index, command in commands.items():
     print("Registered command string: " + index)
 
 for new_line in follow(path_use):
-    print(new_line, end='')
+    if debugmode == True:
+        print(new_line, end='')
     # global stuffcounter
     curtime = int(time.time())
     if (curtime>lasttime+interval) and doprompt==True:
         if sys.argv[1] == "tf":
-            message="type !cat for a random cat fact!"
+            message=bot_ident+"type !cat for a random cat fact!"
             message_rcon(message)
         elif sys.argv[1] == "cs":
             message="type !cat for a random cat fact!"
