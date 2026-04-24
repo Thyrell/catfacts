@@ -367,10 +367,6 @@ def follow(filename):
                     time.sleep(0.1)  # Sleep briefly to avoid 100% CPU usage
                     continue
                 yield line
-                if keyboard.is_pressed("q"):
-                    print("Escape pressed, exiting...")
-                    sys.exit()
-                    break
             except UnicodeDecodeError:
                 print("something bad is happening! im scared!")
 
@@ -382,7 +378,7 @@ def msgpacket(msg, cmdtype):
     global cmdindex
     # global cmdtype
     bigness=len(msg)+10
-    print(bigness)
+    # print(bigness)
     packetbigness = bigness.to_bytes(4, byteorder='little', signed=True)
     packetid = cmdindex.to_bytes(4, byteorder='little', signed=True)
     cmdindex = cmdindex+1
@@ -390,7 +386,7 @@ def msgpacket(msg, cmdtype):
     terminator=b"\x00"
     # fullpacket=packetbigness+packetid+packettype+msg.encode()+terminator
     fullpacket=struct.pack("<iii", bigness, cmdindex, cmdtype) + msg.encode() + b"\x00\x00"
-    print(fullpacket)
+    # print(fullpacket)
     return fullpacket
 
 stuffcounter = -1
@@ -422,14 +418,14 @@ def message_rcon(m):
         message = msgpacket(rconpassword, 3)
         s.send(message)     # Send packet
         data = s.recv(1024)             # Receive packet
-        print(f"Received from server: {data}")
+        # print(f"Received from server: {data}")
 
         time.sleep(.5)
 
         message=msgpacket("say \x22" + m + "\x22", 2)
         s.send(message)     # Send packet
         data = s.recv(4096)             # Receive packet
-        print(f"Received from server: {data}")
+        # print(f"Received from server: {data}")
 
 def message_cs(m):
     with open(path_cs_cfg, "w") as f:
