@@ -456,7 +456,7 @@ def echo_cs(m):
     keyboard.press_and_release(csmsgbind)
     print("SENT MESSAGE\n"+m)
 
-def echo_game(m)
+def echo_game(m):
     if sys.argv[1] == "tf":
         echo_rcon(m)
     elif sys.argv[1] == "cs":
