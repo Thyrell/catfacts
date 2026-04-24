@@ -1,0 +1,3 @@
+CAT SETTINGS
+RCON_PASSWORD: soberconpassword
+path_tf: D:/Program Files (x86)/Steam/steamapps/common/Team Fortress 2/tf/console.log

@@ -9,7 +9,7 @@ import struct
 
 from pynput.keyboard import Key, Listener
 
-import pyperclip
+# import pyperclip # deprecated for now
 
 import tkinter as tk
 from tkinter import filedialog
