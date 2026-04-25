@@ -438,10 +438,10 @@ else:
     exitstring = "Source2Shutdown"
 
 bot_ident = "\x10\x10\x10"  # used to detect other script users, shutdown all but one
-fingerprint_chars = "\x01\x02\x03\x04\x05\x06\x08\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f"
+fingerprint_chars = "\x01\x02\x03\x04\x05\x06\x08\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1c\x1d\x1e\x1f"
 fingerprint = ""
 for i in range(3):
-    fingerprint=fingerprint+fingerprint_chars[random.randint(1,len(fingerprint_chars))]
+    fingerprint=fingerprint+fingerprint_chars[random.randint(0,len(fingerprint_chars)-1)]
 if debugmode == True:
     print("local fingerprint: ", end="")
     print(fingerprint.encode())
@@ -488,8 +488,6 @@ def command_rcon(m):
                 overflowsuccess = True
                 # print("whoop!")
     return data
-
-#command_rcon("status")
 
 def message_rcon(m):
     global debugmode
