@@ -373,7 +373,8 @@ def follow(filename):
                     continue
                 yield line
             except UnicodeDecodeError:
-                print("something bad is happening! im scared!")
+                if debugmode == True:
+                    print("Unicode decode error in console output: you can probably ignore this")
 
 currentfact=""
 
@@ -419,7 +420,11 @@ bot_ident = "\x10\x10\x10"  # used to detect other script users, shutdown all bu
 
 statuscommand = b"\x10\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x73\x74\x61\x74\x75\x73\x00\x00"
 
+# emptyresponse = b"\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00" # for some reason this is what the protocol docs say it should be
+emptyresponse = b"\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00" # but this is what it actually is =D
+
 def command_rcon(m):
+    global debugmode
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         #time.sleep(3)
         s.connect((HOST, PORT))
@@ -433,13 +438,32 @@ def command_rcon(m):
 
         message=msgpacket(m, 2)
         s.send(message)     # Send packet
-        # print(message)
+        if debugmode == True:
+            print(message)
         # print(statuscommand)
-        data = s.recv(4096)             # Receive packet
-        # print(f"Received from server: {data}")
-        # return data
+
+        response = s.recv(4096)
+
+        message = msgpacket("", 0)
+        s.send(message)     # Send packet
+
+        overflowsuccess = False
+        #data = s.recv(4096)             # Receive packet
+        # response = ""
+        while overflowsuccess == False:
+            data = s.recv(4096)
+            if debugmode == True:
+                print(f"Received from server: {data}")
+            response = response+data
+            if data.find(emptyresponse) != -1:
+                overflowsuccess = True
+                print("whoop!")
+    return data
+
+#command_rcon("status")
 
 def message_rcon(m):
+    global debugmode
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((HOST, PORT))
 
@@ -452,7 +476,14 @@ def message_rcon(m):
 
         message=msgpacket("say \x22" + bot_ident + m + "\x22", 2)
         s.send(message)     # Send packet
+        if debugmode == True:
+            print(message)
         data = s.recv(4096)             # Receive packet
+        if debugmode == True:
+            print(f"Received from server: {data}")
+        data = s.recv(4096)             # Receive packet
+        if debugmode == True:
+            print(f"Received from server: {data}")
         # print(f"Received from server: {data}")
 
 def message_cs(m):
@@ -520,7 +551,7 @@ def ident_handle(a):
     localid = 0#math.randint(1,1000)
 
 def getlocalplayerid(a):
-    command_rcon("exec sendstatus")
+    command_rcon("status")
     # print(statustext)
 
 doprompt = True
