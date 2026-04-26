@@ -600,11 +600,6 @@ def command_promptoff(a):
     print("PROMPT OFF")
     # echo_game("PROMPT OFF")
 
-cat_index = commandstring + "!cat"
-dog_index = commandstring + "!dog"
-
-the_lightmaps_thing_the_console_prints_when_user_finishes_connecting_to_server = "Redownloading all lightmaps"
-
 # #    670 "sobe"              [U:1:1315524182]    22:21       46    0 active
 
 playerids = {}
@@ -614,9 +609,42 @@ def printplayers(a):
         print(player + ": STEAMID " + playerid)
 
 def enablescript(a):
+    global script_conflict_disabled
     script_conflict_disabled = False
 def disablescript(a):
+    global script_conflict_disabled
     script_conflict_disabled = True
+
+file_commands = {}
+
+directory = Path("custom")
+for file in directory.iterdir():
+    if file.is_file():
+        commandmatch = re.search("(.*).txt", file.name)
+        com = ""
+        if commandmatch:
+            # com = commandstring + commandmatch.group(1)
+            com = commandmatch.group(1)
+            file_commands[com] = {}
+            if debugmode == True:
+                print("registered command from file: " + com)
+            numentries=0
+            with open("custom/"+file.name, 'r') as file:
+                for line in file:
+                    file_commands[com][numentries] = line.strip()
+                    if debugmode==True:
+                        print(str(numentries)+": "+line.strip())
+                    numentries=numentries+1
+
+def do_file_command(c,a):
+    selekta = random.randint(0,len(a)-1)
+    message_rcon(a[selekta])
+    # print(c,a)
+
+cat_index = commandstring + "!cat"
+dog_index = commandstring + "!dog"
+
+the_lightmaps_thing_the_console_prints_when_user_finishes_connecting_to_server = "Redownloading all lightmaps"
 
 commands = {
     cat_index: command_cat,
@@ -674,7 +702,7 @@ for new_line in follow(path_use):
     curtime = int(time.time())
     if (curtime>lasttime+interval) and doprompt==True:
         if (sys.argv[1] == "tf") and silent == False:
-            message=bot_ident+"type !cat for a random cat fact!"
+            message="type !cat for a random cat fact!"
             message_rcon(message)
         elif (sys.argv[1] == "cs") and silent == False:
             message="type !cat for a random cat fact!"
@@ -689,6 +717,12 @@ for new_line in follow(path_use):
         pattern_temp = re.search(index,new_line)
         if pattern_temp:
             command(new_line, pattern_temp)
+    for index, array in file_commands.items():
+        pattern_temp = re.search(commandstring + "!("+index+")",new_line)
+        # print(commandstring + "!("+index+")")
+        # print(index, array, pattern_temp)
+        if pattern_temp:
+            do_file_command(index, array)
 
 #    elif new_line.find(exitstring) != -1 or new_line.find("killcat") != -1:
 #        raise ValueError("KILLING CAT")
