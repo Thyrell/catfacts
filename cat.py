@@ -582,9 +582,9 @@ def command_killcat(a):
 def ident_handle(a):
     localid = 0#math.randint(1,1000)
 
-def getlocalplayerid(a):
+def getlocalplayerid(a): # CURRENTLY DEPRECATED, ONLY WORKS ON LOCAL SERVER
     output = command_rcon("status")
-    print(output)
+    # print(output)
     # print(statustext)
 
 doprompt = True
