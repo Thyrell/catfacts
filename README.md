@@ -1,3 +1,5 @@
+[CHANGELOG](CHANGELOG.md)
+
 ## Dependencies
 This script requires the following python libraries:
 - keyboard
