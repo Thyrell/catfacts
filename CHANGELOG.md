@@ -1,3 +1,7 @@
+## 1.0.2
+* added epic hacker letters in code header
+* no functional changes
+
 ## 1.0.1
 * Prompt for tf/cs mode if script is launched with no arguments
     * Previously, if script was launched with no arguments it would just crash.
