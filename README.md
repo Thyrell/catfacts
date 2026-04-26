@@ -31,10 +31,10 @@ By default, the config file is named `sobecatfacts.cfg`. Add the following line 
 ```
 bind f13 "exec sobecatfacts"
 ``` 
-**NOTE:** Because it uses keybinds to send messages in CS2, the script **WILL NOT SEND MESSAGES** if you are alt-tabbed, have chat or console open, or any other situation that prevents keybind inputs from being processed. I recommend binding another key to run `sobecatfacts.cfg` so that you can send the last queued message manually if someone missed theirs.
+**NOTE:** Because it uses keybinds to send messages in CS2, the script **WILL NOT SEND MESSAGES** if you are alt-tabbed, have chat or console open, or any other situation that prevents keybind inputs from being processed. I recommend binding another key to run `sobecatfacts.cfg` so that you can send the last queued message manually if it failed to send.
 
 ## Usage
-Everything in this repository is ready to run as-is.
+Everything in this repository is ready to run as-is. If you want to add custom commands, see the **Custom commands** and **Custom pattern-match commands** sections.
 
 The script can be run in rcon mode for TF2, or in keybind mode for CS2. When you run it you **MUST** specify which mode using launch options:
 `python cat.py tf` or `python cat.py cs`
@@ -66,14 +66,12 @@ For example, `lizard.txt` in the `/custom` folder contains two lines:
 Lizards are not cats!
 I don't know anything about lizards!
 ```
-When a player in your match types `!lizard`, the script will send one of those two messages in chat, randomly selected.
+When a player in your match types `!lizard`, the script will randomly select one of those two messages to send in chat.
 
 ## Custom pattern-match commands
-Pattern-match commands use python regex to find phrases in console output, and are **NOT** restricted to messages in chat.\
-These can be used to trigger messages on certain game events, or to recognize more complex patterns in chat messages.
+Pattern-match commands use python regex to find phrases in console output, and are **NOT** restricted to messages in chat. These can be used to trigger messages on certain game events, or to recognize more complex patterns in chat messages.
 
-Unlike standard custom commands, the filename is not used by the script at all. \
-The command trigger is instead defined by the first line of the file, with all following lines representing entries in the list of possible messages.
+Unlike standard custom commands, the filename is not used by the script at all. The command trigger is instead defined by the first line of the file, with all following lines representing entries in the list of possible messages.
 
 For example, `test.txt` in the `/custom_pattern` folder contains these lines:
 ```
@@ -83,7 +81,8 @@ second entry!
 third entry!
 ```
 The first line defines the "trigger" pattern: `sobescooltestcommand\d`.\
-This matches the exact phrase `sobescooltestcommand`, followed by any number. It will trigger if the phrase `sobescooltestcommand1`, `sobescooltestcommand7`, etc are printed to console.
+This matches the exact phrase `sobescooltestcommand`, followed by any number (represented by `\d`).\
+It will trigger if any matching phrase - `sobescooltestcommand1`, `sobescooltestcommand7`, etc - appear anywhere in any message printed to the console.
 
 **IMPORTANT**: This will not be restricted to chat messages, it will trigger if that phrase appears in ANY console output!\
 If you want to restrict it to only chat messages, start the pattern with `:  .*` (TWO spaces)
