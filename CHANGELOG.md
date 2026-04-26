@@ -9,3 +9,5 @@
 ## 1.0.0
 * First stable version!!
 * Added update check
+
+**THIS VERSION REQUIRES A NEW DEPENDENCY:** `requests`
