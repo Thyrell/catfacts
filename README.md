@@ -61,6 +61,8 @@ Currently supported commands:
 | listplayerids | Prints a list of all connected players + steamids |
 | script_enable | Enables script - script can be automatically disabled if two instances are running on the same server. Use this to turn it back on. |
 | script_disable | Disables the script. |
+| community_on  | Forces community server compatibility mode on, to prevent chat messages from being filtered for invalid characters |
+| community_off | Forces community server compatibility mode off (will be turned back on after every `status` command) |
 
 ## Custom commands
 This script currently only supports custom commands in the same format as the original !cat command - trigger with a phrase in chat, and print a random phrase from a selection.\

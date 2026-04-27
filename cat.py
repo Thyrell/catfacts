@@ -1,4 +1,4 @@
-CAT_SCRIPT_VERSION = "1.0.3"
+CAT_SCRIPT_VERSION = "1.0.5"
 
 header_output = [
  "     _----_ _---_  ,----_  ,------,",#                                                                                                                                                    .
@@ -8,7 +8,7 @@ header_output = [
  "  |     ,_:  ' |   ^,  |   |           '|            [silent/s]: silence chat prompt",#                    /  /   ,'-'--: |  | _:   ',/   /                                               .
  "  |    ' \\   ,'     |     /             |        ________________________ ",#                            |  |   ;     |  |   '_,'\   \  |                                                .
  "  |       |         |     \\,            |       |+                      +|",#                            ', ',   ;_ __',  ',  \   |   |  \                                               .
- "  |       |         |      |            |       |  CAT FACTS ver. 1.0.3  |",#                               ', ',   '-_| \  ',  |  |   |   \                                              .
+ "  |       |         |      |            |       |  CAT FACTS ver. 1.0.5  |",#                               ', ',   '-_| \  ',  |  |   |   \                                              .
  "  |       | ;  ,    |      |            |       |____________   by SOBE  |__________________",#               ', ',       \__/__|  |   |\   \                                             .
  "  |       |    '   ,'  |   |           ,|       |||_|____|_|||________ +                   +|",#                ', ',     / ___/__/   /--'   \                                            .
  "   \\_.:   |-____-' ;       |   ________|'                    ||____|_||  concept : KACEY2K  |",#                 \__\___/  \__\_____/|______|                                            .
@@ -551,10 +551,11 @@ def command_rcon(m):
                 # print("whoop!")
     return data
 
+blockmessages = False
 def message_rcon(m):
     global debugmode
     global script_conflict_disabled
-    if script_conflict_disabled == False:
+    if script_conflict_disabled == False and blockmessages == False:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.connect((HOST, PORT))
 
@@ -643,13 +644,16 @@ def command_killcat(a):
 def ident_handle(a):
     localid = 0#math.randint(1,1000)
 
-def getlocalplayerid(a): # CURRENTLY DEPRECATED, ONLY WORKS ON LOCAL SERVER
+def connectionfinished_handler(a):
+    global blockmessages
+    global lasttime
     output = command_rcon("status")
+    blockmessages = False
+    lasttime = 0 # Allow script to send cat prompt immediately upon connecting to a server
     # print(output)
     # print(statustext)
 
 doprompt = True
-
 def command_prompton(a):
     global doprompt
     doprompt = True
@@ -664,7 +668,6 @@ def command_promptoff(a):
 # #    670 "sobe"              [U:1:1315524182]    22:21       46    0 active
 
 playerids = {}
-
 def printplayers(a):
     for player, playerid in playerids.items():
         print(player + ": STEAMID " + playerid)
@@ -675,6 +678,13 @@ def enablescript(a):
 def disablescript(a):
     global script_conflict_disabled
     script_conflict_disabled = True
+
+def forcecommunitycompat_on(c):
+    global community_compat
+    community_compat = True
+def forcecommunitycompat_off(c):
+    global community_compat
+    community_compat = False
 
 file_commands = {}
 file_pattern_commands = {}
@@ -728,7 +738,7 @@ def do_file_command(c,a):
 cat_index = commandstring + "!cat"
 dog_index = commandstring + "!dog"
 
-the_lightmaps_thing_the_console_prints_when_user_finishes_connecting_to_server = "Redownloading all lightmaps"
+lightmaps = "Redownloading all lightmaps"
 
 commands = {
     cat_index: command_cat,
@@ -738,10 +748,12 @@ commands = {
     "caton": command_prompton,
     "catoff": command_promptoff,
     bot_ident: ident_handle,
-    the_lightmaps_thing_the_console_prints_when_user_finishes_connecting_to_server: getlocalplayerid,
+    lightmaps: connectionfinished_handler,
     "listplayerids": printplayers,
     "script_enable": enablescript,
-    "script_disable": disablescript
+    "script_disable": disablescript,
+    "community_on": forcecommunitycompat_on,
+    "community_off": forcecommunitycompat_off
 }
 
 steamid_pattern = "#\\s+(\\d+)\\s+\"(.*)\"\\s+\\[(.*)\\]\\s+(\\S*)\\s+(\\d+)\\s+(\\d+)\\s+active"
@@ -803,36 +815,35 @@ def hostname_handler(a, args):
         if debugmode==True:
             print("### CONNECTED TO COMMUNITY SERVER ###")
 
+serverconnecting_pattern="Connecting to \\d*"
+def serverconnect_handler(a, args):
+    global blockmessages
+    blockmessages=True
+
 pattern_commands = {
     steamid_pattern: status_output_process,
     fingerprint_pattern: conflict_handler,
     fingerprint_pattern_community: conflict_handler_community,
-    hostname_pattern: hostname_handler
+    hostname_pattern: hostname_handler,
+    serverconnecting_pattern: serverconnect_handler
 }
 
 if debugmode == True:
     for index, command in commands.items():
         print("Registered command string: " + index)
 
-message="status"
-command_rcon(message)
-time.sleep(.5)
+havewesentstatusyet = False
 
 for new_line in follow(path_use):
+    ## send status once on script load to ensure community_compat is set if script is loaded while connected to a community server
+    ## does not work unless command is set after this loop is established
+    if havewesentstatusyet == False:
+        command_rcon("status")
+        time.sleep(.5)
+        havewesentstatusyet = True
     if debugmode == True:
-        print(new_line, end='')
+        print(new_line.replace("\x07", ""), end='')
     # global stuffcounter
-    curtime = int(time.time())
-    if (curtime>lasttime+interval) and doprompt==True:
-        if (sys.argv[1] == "tf") and silent == False:
-            message="type !cat for a random cat fact!"
-            message_rcon(message)
-        elif (sys.argv[1] == "cs") and silent == False:
-            message="type !cat for a random cat fact!"
-            message_cs(message)
-            lasttime=curtime
-        lasttime = curtime
-        interval = random.randint(intervalmin,intervalmax)
     for index, command in commands.items():
         if new_line.find(index) != -1:
             command(new_line)
@@ -848,3 +859,14 @@ for new_line in follow(path_use):
         pattern_temp = re.search(index,new_line)
         if pattern_temp:
             do_file_command(index, array)
+    curtime = int(time.time())
+    if (curtime>lasttime+interval) and doprompt==True:
+        if (sys.argv[1] == "tf") and silent == False:
+            message="type !cat for a random cat fact!"
+            message_rcon(message)
+        elif (sys.argv[1] == "cs") and silent == False:
+            message="type !cat for a random cat fact!"
+            message_cs(message)
+            lasttime=curtime
+        lasttime = curtime
+        interval = random.randint(intervalmin,intervalmax)
