@@ -1,3 +1,8 @@
+## 1.0.3
+* Automatically detect when client connects to a community server and changes fingerprint to avoid server filter
+	* Previously some servers would filter messages due to invalid characters in fingerprint
+* Print cool header on script launch
+
 ## 1.0.2
 * added epic hacker letters in code header
 * no functional changes
