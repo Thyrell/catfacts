@@ -1,3 +1,5 @@
+![GATITO IMAGE](gatito.jpg)
+
 [CHANGELOG](CHANGELOG.md)
 
 ## Dependencies

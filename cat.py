@@ -1,21 +1,22 @@
-CAT_SCRIPT_VERSION = "1.0.2"
+CAT_SCRIPT_VERSION = "1.0.3"
 
-#      _----_ _---_  ,----_  ,------,                                                                                                                                                       .
-#    ,:     ';'     \|     \:'      |                                                             _______   _____,,,--,-----------,                                                         .
-#   ,'       |      |,      :,   ___|__--,                                                      ,' ,'    '-/  /     |_|_,,    ,,  |                                                         .
-#   /        / ,:,   |       |           |,                                                   ,' ,'   ,';  /,'  /|   \/  /   /''''                                                          .
-#   |     ,_:  ' |   ^,  |   |           '|                                                  /  /   ,'-'--: |  | _:   ',/   /                                                               .
-#   |    ' \   ,'     |     /             |        ________________________                 |  |   ;     |  |   '_,'\   \  |                                                                .
-#   |       |         |     \,            |       |+                      +|                ', ',   ;_ __',  ',  \   |   |  \                                                               .
-#   |       |         |      |            |       |  CAT FACTS ver. 1.0.2  |                  ', ',   '-_| \  ',  |  |   |   \                                                              .
-#   |       | ;  ,    |      |            |       |____________   by SOBE  |__________________  ', ',       \__/__|  |   |\   \                                                             .
-#   |       |    '   ,'  |   |           ,|       |||_|____|_|||________ +                   +|   ', ',     / ___/__/   /--'   \                                                            .
-#    \_.:   |-____-' ;       |   ________|'                    ||____|_||  concept : KACEY2K  |     \__\___/  \__\_____/|______|                                                            .
-#    -_^    |       |       .|   ;'  ^^;                ________________|               ______|                    _________       .          ____     __________    ____                   .
-#   |       |      ,|       |'         |               |+                             +||_|__||                     /      /     ,'|       ,-'    ';  /    /    / ,''   '\                  .
-#    \      |\     / _--,   /          |               |  licensed under CC BY-NC 4.0  |                           /            /  |     ,'       '' /    /    / /      ,'                  .
-#     :___-/  -___- :_, :__-\_________-'               |_______________________________|                          /______/    ,'   |    /                /       '',_                       .
-#                                                      ||||__||_______________|_||__||||                         /      /  __/_____|_  /                /            ''-,                   .
+header_output = [
+ "     _----_ _---_  ,----_  ,------,",#                                                                                                                                                    .
+ "   ,:     ';'     \\|     \\:'      |                LAUNCH OPTIONS:             ",#                            _______   _____,,,--,-----------,                                         .
+ "  ,'       |      |,      :,   ___|__--,             [tf/cs]: launch for tf2/cs2 ",#                          ,' ,'    '-/  /     |_|_,,    ,,  |                                         .
+ "  /        / ,:,   |       |           |,            [debug/d]: print debug info   ",#                      ,' ,'   ,';  /,'  /|   \/  /   /''''                                          .
+ "  |     ,_:  ' |   ^,  |   |           '|            [silent/s]: silence chat prompt",#                    /  /   ,'-'--: |  | _:   ',/   /                                               .
+ "  |    ' \\   ,'     |     /             |        ________________________ ",#                            |  |   ;     |  |   '_,'\   \  |                                                .
+ "  |       |         |     \\,            |       |+                      +|",#                            ', ',   ;_ __',  ',  \   |   |  \                                               .
+ "  |       |         |      |            |       |  CAT FACTS ver. 1.0.3  |",#                               ', ',   '-_| \  ',  |  |   |   \                                              .
+ "  |       | ;  ,    |      |            |       |____________   by SOBE  |__________________",#               ', ',       \__/__|  |   |\   \                                             .
+ "  |       |    '   ,'  |   |           ,|       |||_|____|_|||________ +                   +|",#                ', ',     / ___/__/   /--'   \                                            .
+ "   \\_.:   |-____-' ;       |   ________|'                    ||____|_||  concept : KACEY2K  |",#                 \__\___/  \__\_____/|______|                                            .
+ "   -_^    |       |       .|   ;'  ^^;                ________________|               ______|",#                 _________       .          ____     __________    ____                   .
+ "  |       |      ,|       |'         |               |+                             +||_|__||",#                  /      /     ,'|       ,-'    ';  /    /    / ,''   '\                  .
+ "   \\      |\\     / _--,   /          |               |  licensed under CC BY-NC 4.0  |",#                      /            /  |     ,'       '' /    /    / /      ,'                  .
+ "    :___-/  -___- :_, :__-\\_________-'               |_______________________________|",#                      /______/    ,'   |    /                /       '',_                       .
+ "                                                     ||||__||_______________|_||__||||"#                       /      /  __/_____|_  /                /            ''-,                   .
 #                                                                                                               /          ,'      |   |               /        ,        \                  .
 #                                                                                                              /          /        |    \       _     /        |         |                  .
 #                                                                                                            _/\_      _,'        _|_    ',   __,'  _/_         \______,/                   .
@@ -26,6 +27,9 @@ CAT_SCRIPT_VERSION = "1.0.2"
 #                                                                                                                                                                                           .
 #                                                                                                                                                                                           .
 #                                                                                                                                                                                           .
+]
+for s in header_output:
+    print(s)
 
 import socket
 import time
@@ -488,7 +492,8 @@ else:
     commandstring = ": "
     exitstring = "Source2Shutdown"
 
-bot_ident = "\x10\x10\x10"  # used to detect other script users, shutdown all but one
+# bot_ident = "\x10\x10\x10"  # used to detect other script users, shutdown all but one
+bot_ident="\x9d"
 fingerprint_chars = "\x01\x02\x03\x04\x05\x06\x08\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1c\x1d\x1e\x1f"
 fingerprint = ""
 for i in range(3):
@@ -496,11 +501,17 @@ for i in range(3):
 if debugmode == True:
     print("local fingerprint: ", end="")
     print(fingerprint.encode())
+fingerprint_community = "["+str(random.randint(0,999))+"] "
+if debugmode == True:
+    print("local community fingerprint: ", end="")
+    print(fingerprint_community)
 
-statuscommand = b"\x10\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x73\x74\x61\x74\x75\x73\x00\x00"
+community_compat = False
+
+# statuscommand = b"\x10\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x73\x74\x61\x74\x75\x73\x00\x00"
 
 # emptyresponse = b"\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00" # for some reason this is what the protocol docs say it should be
-emptyresponse = b"\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00" # but this is what it actually is =D
+emptyresponse = b"\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00"               # but this is what it actually is =D
 
 def command_rcon(m):
     global debugmode
@@ -553,8 +564,10 @@ def message_rcon(m):
             # print(f"Received from server: {data}")
 
             time.sleep(.5)
-
-            message=msgpacket("say \x22" + bot_ident + fingerprint + m + "\x22", 2)
+            if community_compat == True:
+                message=msgpacket("say \x22" + bot_ident + fingerprint_community + m + "\x22", 2)
+            else:
+                message=msgpacket("say \x22" + bot_ident + fingerprint + m + "\x22", 2)
             s.send(message)     # Send packet
             if debugmode == True:
                 print(message)
@@ -741,31 +754,69 @@ def status_start_process(a,args):
     global playerids
     playerids = {}
 
+# 
+
 fingerprint_set="["+fingerprint_chars+"]"
-fingerprint_pattern="\x10\x10\x10("+fingerprint_set+fingerprint_set+fingerprint_set+")"
+fingerprint_pattern=bot_ident+"("+fingerprint_set+fingerprint_set+fingerprint_set+")"
+fingerprint_set_community="\\d\\d\\d"
+fingerprint_pattern_community=bot_ident+"[("+fingerprint_set_community+")]"
 def conflict_handler(a, args):
     global script_conflict_disabled
-    if args.group(1) != fingerprint:
-        print("CONFLICT DETECTED!!!")
-        if args.group(1).encode() > fingerprint.encode():
-            script_conflict_disabled = True
-            print("#############################")
-            print("SCRIPT DISABLED")
-            print("type \'echo script_enable\' in console to reenable!")
-            print("please wait until next server before reenabling.")
-            print("#############################")
-        else:
-            if debugmode == True:
-                print("You won! disabling other script.")
+    if community_compat == False:
+        if args.group(1) != fingerprint:
+            print("CONFLICT DETECTED!!!")
+            if args.group(1).encode() > fingerprint.encode():
+                script_conflict_disabled = True
+                print("#############################")
+                print("SCRIPT DISABLED")
+                print("type \'echo script_enable\' in console to reenable!")
+                print("please wait until next server before reenabling.")
+                print("#############################")
+            else:
+                if debugmode == True:
+                    print("You won! disabling other script.")
+def conflict_handler_community(a, args):
+    global script_conflict_disabled
+    if community_compat == True:
+        if args.group(1) != fingerprint_community:
+            print("CONFLICT DETECTED!!!")
+            if args.group(1).encode() > fingerprint_community.encode():
+                script_conflict_disabled = True
+                print("#############################")
+                print("SCRIPT DISABLED")
+                print("type \'echo script_enable\' in console to reenable!")
+                print("please wait until next server before reenabling.")
+                print("#############################")
+            else:
+                if debugmode == True:
+                    print("You won! disabling other script.")
+
+hostname_pattern = "hostname:\\s*(.*)"
+def hostname_handler(a, args):
+    global community_compat
+    if re.search("Valve Matchmaking Server", args.group(1)):
+        community_compat = False
+        if debugmode==True:
+            print("### CONNECTED TO VALVE MATCHMAKING SERVER ###")
+    else:
+        community_compat = True
+        if debugmode==True:
+            print("### CONNECTED TO COMMUNITY SERVER ###")
 
 pattern_commands = {
     steamid_pattern: status_output_process,
-    fingerprint_pattern: conflict_handler
+    fingerprint_pattern: conflict_handler,
+    fingerprint_pattern_community: conflict_handler_community,
+    hostname_pattern: hostname_handler
 }
 
 if debugmode == True:
     for index, command in commands.items():
         print("Registered command string: " + index)
+
+message="status"
+command_rcon(message)
+time.sleep(.5)
 
 for new_line in follow(path_use):
     if debugmode == True:
