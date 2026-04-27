@@ -1,3 +1,10 @@
+## 1.0.9
+* Fixed CS2 support
+	* Previous community server detection updates broke `cs` launch option, works now
+	* Launching the script mid-match in CS2 no longer works, because it misses the server connection trigger.
+	* To activate the script when launching it midgame, type `#CS_CONNECT` in game console.
+* Added spinner for the loading bar :D
+
 ## 1.0.8
 * Added framework to print script info in non-debug mode without spamming terminal
 * Currently only shows connection status and progress bar for next chat prompt

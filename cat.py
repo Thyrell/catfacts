@@ -1,4 +1,4 @@
-CAT_SCRIPT_VERSION = "1.0.8"
+CAT_SCRIPT_VERSION = "1.0.9"
 
 header_output = [
  "     _----_ _---_  ,----_  ,------,",#                                                                                                                                                    .
@@ -8,7 +8,7 @@ header_output = [
  "  |     ,_:  ' |   ^,  |   |           '|            [silent/s]: silence chat prompt",#                    /  /   ,'-'--: |  | _:   ',/   /                                               .
  "  |    ' \\   ,'     |     /             |        ________________________ ",#                            |  |   ;     |  |   '_,'\   \  |                                                .
  "  |       |         |     \\,            |       |+                      +|",#                            ', ',   ;_ __',  ',  \   |   |  \                                               .
- "  |       |         |      |            |       |  CAT FACTS ver. 1.0.8  |",#                               ', ',   '-_| \  ',  |  |   |   \                                              .
+ "  |       |         |      |            |       |  CAT FACTS ver. 1.0.9  |",#                               ', ',   '-_| \  ',  |  |   |   \                                              .
  "  |       | ;  ,    |      |            |       |____________   by SOBE  |__________________",#               ', ',       \__/__|  |   |\   \                                             .
  "  |       |    '   ,'  |   |           ,|       |||_|____|_|||________ +                   +|",#                ', ',     / ___/__/   /--'   \                                            .
  "   \\_.:   |-____-' ;       |   ________|'                    ||____|_||  concept : KACEY2K  |",#                 \__\___/  \__\_____/|______|                                            .
@@ -73,8 +73,13 @@ if len(sys.argv)==1:
     elif response.lower() == "n" or response == "":
         sys.argv.append("tf")
 
+game_type = ""
+
 if sys.argv[1]=="cs": # give time to alt tab for cs for keybind
+    game_type = "cs"
     time.sleep(2)
+elif sys.argv[1]=="tf":
+    game_type = "tf"
 
 catfacts = [
     "A house cat's genome is 95.6 percent tiger, and they share many behaviors with their jungle ancestors, such as scent marking by scratching, prey play, prey stalking, pouncing, chinning, and urine marking.",
@@ -369,8 +374,8 @@ except FileNotFoundError:
     with open("catsettings.txt", "a") as f:
         f.write("CAT SETTINGS\n")
 
-if debugmode == True:
-    print(path_tf)
+#if debugmode == True:
+    #print(path_tf)
 
 # IF YOU HAVE A DRIVE LABELED U:\ AND A FILE ON THAT DRIVE CALLED "fuck" THIS PART WILL BREAK THE SCRIPT!!!
 if not path_tf:
@@ -401,6 +406,8 @@ if sys.argv[1]=="tf":
             f.write("path_tf: " + path_tf + "\n")
 
 if sys.argv[1]=="cs":
+    if debugmode==True:
+        print("LAUNCHING IN CS MODE")
     if not Path(path_cs).exists():
         print("cs2 console.log not found! please select path to \\Counter-Strike Global Offensive\\game\\csgo\\console.log now.")
         time.sleep(2)
@@ -590,7 +597,7 @@ def message_cs(m):
         f.write("say \"" + m + "\"")
     time.sleep(0.5)
     keyboard.press_and_release(csmsgbind)
-    print("SENT MESSAGE\n"+m)
+    # print("SENT MESSAGE\n"+m)
 
 # THESE DONT WORK
 def echo_rcon(m):
@@ -839,6 +846,16 @@ def hostname_handler(a, args):
             #print("\rConnected to community server                         \r", end="")
         serverconmessage = "Connected to community server"
 
+cs_connect_pattern = "ChangeGameUIState: CSGO_GAME_UI_STATE_LOADINGSCREEN -> CSGO_GAME_UI_STATE_INGAME"
+def cs_connect_handler(a, args):
+    global allowchatprompt
+    global community_compat
+    global serverconmessage
+    allowchatprompt = True
+    community_compat = False
+    serverconmessage = "Connected to official CS2 server"
+    lasttime = 0
+
 serverconnecting_pattern="Connecting to \\d*"
 def serverconnect_handler(a, args):
     global serverconmessage
@@ -882,7 +899,9 @@ pattern_commands = {
     hostname_pattern: hostname_handler,
     serverconnecting_pattern: serverconnect_handler,
     serverconnecting_matchmaking_pattern: serverconnect_matchmaking_handler,
-    playercount_pattern: playercount_handler
+    playercount_pattern: playercount_handler,
+    cs_connect_pattern: cs_connect_handler,
+    "#CS_CONNECT": cs_connect_handler
 }
 
 if debugmode == True:
@@ -894,10 +913,16 @@ havewesentstatusyet = False
 LINE_UP = "\033[1A"
 LINE_CLEAR = "\033[2K"
 
+spinner_rotato = 0
+spinners=["|","/","—","\\"]
+
 for new_line in follow(path_use):
+    if spinner_rotato==len(spinners)-1:
+        spinner_rotato = -1
+    spinner_rotato+=1
     ## send status once on script load to ensure community_compat is set if script is loaded while connected to a community server
     ## does not work unless command is set after this loop is established
-    if havewesentstatusyet == False:
+    if havewesentstatusyet == False and game_type=="tf":
         command_rcon("status")
         time.sleep(.5)
     curtime = int(time.time())
@@ -919,8 +944,10 @@ for new_line in follow(path_use):
             perc = (interval-timeuntil)/interval
             percstring="\r["
             # print("\r[", end="")
-            for i in range(1,20):
-                if perc<(i/20):
+            for i in range(1,22):
+                if i==11:
+                    percstring+=spinners[spinner_rotato]
+                elif perc<(i/22):
                     percstring+=" "
                 else:
                     percstring+="#"
@@ -954,6 +981,6 @@ for new_line in follow(path_use):
             lasttime=curtime
         lasttime = curtime
         interval = random.randint(intervalmin,intervalmax)
-    if havewesentstatusyet == False:
+    if havewesentstatusyet == False and game_type=="tf":
         command_rcon("echo CAT_CONFIRM_CONNECTION_PROCESS")
         havewesentstatusyet = True
