@@ -1,4 +1,4 @@
-CAT_SCRIPT_VERSION = "1.0.5"
+CAT_SCRIPT_VERSION = "1.0.6"
 
 header_output = [
  "     _----_ _---_  ,----_  ,------,",#                                                                                                                                                    .
@@ -8,7 +8,7 @@ header_output = [
  "  |     ,_:  ' |   ^,  |   |           '|            [silent/s]: silence chat prompt",#                    /  /   ,'-'--: |  | _:   ',/   /                                               .
  "  |    ' \\   ,'     |     /             |        ________________________ ",#                            |  |   ;     |  |   '_,'\   \  |                                                .
  "  |       |         |     \\,            |       |+                      +|",#                            ', ',   ;_ __',  ',  \   |   |  \                                               .
- "  |       |         |      |            |       |  CAT FACTS ver. 1.0.5  |",#                               ', ',   '-_| \  ',  |  |   |   \                                              .
+ "  |       |         |      |            |       |  CAT FACTS ver. 1.0.6  |",#                               ', ',   '-_| \  ',  |  |   |   \                                              .
  "  |       | ;  ,    |      |            |       |____________   by SOBE  |__________________",#               ', ',       \__/__|  |   |\   \                                             .
  "  |       |    '   ,'  |   |           ,|       |||_|____|_|||________ +                   +|",#                ', ',     / ___/__/   /--'   \                                            .
  "   \\_.:   |-____-' ;       |   ________|'                    ||____|_||  concept : KACEY2K  |",#                 \__\___/  \__\_____/|______|                                            .
@@ -30,6 +30,7 @@ header_output = [
 ]
 for s in header_output:
     print(s)
+print("")
 
 import socket
 import time
@@ -65,7 +66,6 @@ if update_version:
         if response.lower() == "y":
             quit()
 
-print(sys.argv[0])
 if len(sys.argv)==1:
     response = input("start in cs mode? [Y/N]: ")
     if response.lower() == "y":
@@ -304,7 +304,7 @@ catfacts = [
     "It has been said that the Ukrainian Levkoy has the appearance of a dog, due to the angles of its face",
     "A cat can reach up to five times its own height per jump",
     "Cats have a strong aversion to anything citrus",
-    "Cats would rather starve themselves than eat something they don't like. This means they will refuse an unpalatable -- but nutritionally complete -- food for a prolonged period",
+    "Cats would rather starve themselves than eat something they don't like.",
     "The Snow Leopard, a variety of the California Spangled Cat, always has blue eyes",
     "The two outer layers of a cat's hair are called, respectively, the guard hair and the awn hair",
     "When a household cat died in ancient Egypt, its owners showed their grief by shaving their eyebrows",
@@ -312,7 +312,7 @@ catfacts = [
     "Most kittens are born with blue eyes, which then turn color with age",
     "A cat's meow is usually not directed at another cat, but at a human. To communicate with other cats, they will usually hiss, purr and spit.",
     "According to the Guinness World Records, the largest domestic cat litter totaled at 19 kittens, four of them stillborn",
-    "As temperatures rise, so do the number of cats. Cats are known to breed in warm weather, which leads many animal advocates worried about the plight of cats under Global Warming.",
+    "As temperatures rise, so do the number of cats - cats are known to breed in warm weather.",
     "Cats' rough tongues enable them to clean themselves efficiently and to lick clean an animal bone",
     "Most cat litters contain four to six kittens",
     "A Japanese cat figurine called Maneki-Neko is believed to bring good luck",
@@ -507,7 +507,7 @@ if debugmode == True:
     print("local community fingerprint: ", end="")
     print(fingerprint_community)
 
-community_compat = False
+community_compat = True
 
 # statuscommand = b"\x10\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x73\x74\x61\x74\x75\x73\x00\x00"
 
@@ -645,12 +645,16 @@ def command_killcat(a):
 def ident_handle(a):
     localid = 0#math.randint(1,1000)
 
+lightmaps = "Redownloading all lightmaps"
 def connectionfinished_handler(a):
     global blockmessages
     global lasttime
     output = command_rcon("status")
     blockmessages = False
     lasttime = 0 # Allow script to send cat prompt immediately upon connecting to a server
+
+    print("\rServer type not determined, assuming community server.", end="")
+    community_compat=True
     # print(output)
     # print(statustext)
 
@@ -739,8 +743,6 @@ def do_file_command(c,a):
 cat_index = commandstring + "!cat"
 dog_index = commandstring + "!dog"
 
-lightmaps = "Redownloading all lightmaps"
-
 commands = {
     cat_index: command_cat,
     dog_index: command_dog,
@@ -813,18 +815,21 @@ def hostname_handler(a, args):
         if debugmode==True:
             print("### CONNECTED TO VALVE MATCHMAKING SERVER ###")
         else:
-            print("\rConnected to valve server", end="")
+            print("\rConnected to valve server                             \r", end="")
     else:
         community_compat = True
         if debugmode==True:
             print("### CONNECTED TO COMMUNITY SERVER ###")
         else:
-            print("\rConnected to community server", end="")
+            print("\rConnected to community server                         \r", end="")
 
 serverconnecting_pattern="Connecting to \\d*"
 def serverconnect_handler(a, args):
     global blockmessages
     blockmessages=True
+    global community_compat
+    community_compat = True 
+    print("\rConnecting to server...                                        \r", end="")
 
 pattern_commands = {
     steamid_pattern: status_output_process,

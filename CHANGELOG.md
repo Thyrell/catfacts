@@ -1,3 +1,7 @@
+## 1.0.6
+* Automatically assumes server is community server until `status` confirmation
+	* On community servers with increased playerlimit, first lines of `status` output can fail to register, causing failure to switch to community server fingerprint.
+
 ## 1.0.5
 * Improved server connection handling
 	* Now sends a `status` packet on script launch and waits for response before processing anything else, to detect community server if script is launched midgame
