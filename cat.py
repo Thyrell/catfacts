@@ -320,7 +320,8 @@ catfacts = [
     "Elvis Presley's Chinese name is Mao Wong, or Cat King",
     "They meow!",
     "Cats will NOT eat their owners after they die...but they will cook them!",
-    "80\x25 of cats can speak and understand English, but they don't."
+    "80\x25 of cats can speak and understand English, but they don't.",
+    "You can download this script at: https://github.com/hi-sobe/catfacts"
 
 ]
 
@@ -759,7 +760,8 @@ commands = {
 steamid_pattern = "#\\s+(\\d+)\\s+\"(.*)\"\\s+\\[(.*)\\]\\s+(\\S*)\\s+(\\d+)\\s+(\\d+)\\s+active"
 def status_output_process(a, args):
     # print(a)
-    print("STEAMID IDENTIFIED: " + args.group(3))
+    if debugmode==True:
+        print("STEAMID IDENTIFIED: " + args.group(3))
     playerids[args.group(2)] = args.group(3)
 status_start_pattern = "players\\s+:\\s+\\d*\\s+humans,\\s+\\d*\\s+bots\\s+\\(\\d*\\s*max\\)"
 def status_start_process(a,args):
@@ -810,10 +812,14 @@ def hostname_handler(a, args):
         community_compat = False
         if debugmode==True:
             print("### CONNECTED TO VALVE MATCHMAKING SERVER ###")
+        else:
+            print("\rConnected to valve server", end="")
     else:
         community_compat = True
         if debugmode==True:
             print("### CONNECTED TO COMMUNITY SERVER ###")
+        else:
+            print("\rConnected to community server", end="")
 
 serverconnecting_pattern="Connecting to \\d*"
 def serverconnect_handler(a, args):
