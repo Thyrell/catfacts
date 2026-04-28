@@ -1,36 +1,34 @@
 CAT_SCRIPT_VERSION = "1.0.9"
 
-header_output = [
- "     _----_ _---_  ,----_  ,------,",#                                                                                                                                                    .
- "   ,:     ';'     \\|     \\:'      |                LAUNCH OPTIONS:             ",#                            _______   _____,,,--,-----------,                                         .
- "  ,'       |      |,      :,   ___|__--,             [tf/cs]: launch for tf2/cs2 ",#                          ,' ,'    '-/  /     |_|_,,    ,,  |                                         .
- "  /        / ,:,   |       |           |,            [debug/d]: print debug info   ",#                      ,' ,'   ,';  /,'  /|   \/  /   /''''                                          .
- "  |     ,_:  ' |   ^,  |   |           '|            [silent/s]: silence chat prompt",#                    /  /   ,'-'--: |  | _:   ',/   /                                               .
- "  |    ' \\   ,'     |     /             |        ________________________ ",#                            |  |   ;     |  |   '_,'\   \  |                                                .
- "  |       |         |     \\,            |       |+                      +|",#                            ', ',   ;_ __',  ',  \   |   |  \                                               .
- "  |       |         |      |            |       |  CAT FACTS ver. 1.0.9  |",#                               ', ',   '-_| \  ',  |  |   |   \                                              .
- "  |       | ;  ,    |      |            |       |____________   by SOBE  |__________________",#               ', ',       \__/__|  |   |\   \                                             .
- "  |       |    '   ,'  |   |           ,|       |||_|____|_|||________ +                   +|",#                ', ',     / ___/__/   /--'   \                                            .
- "   \\_.:   |-____-' ;       |   ________|'                    ||____|_||  concept : KACEY2K  |",#                 \__\___/  \__\_____/|______|                                            .
- "   -_^    |       |       .|   ;'  ^^;                ________________|               ______|",#                 _________       .          ____     __________    ____                   .
- "  |       |      ,|       |'         |               |+                             +||_|__||",#                  /      /     ,'|       ,-'    ';  /    /    / ,''   '\                  .
- "   \\      |\\     / _--,   /          |               |  licensed under CC BY-NC 4.0  |",#                      /            /  |     ,'       '' /    /    / /      ,'                  .
- "    :___-/  -___- :_, :__-\\_________-'               |_______________________________|",#                      /______/    ,'   |    /                /       '',_                       .
- "                                                     ||||__||_______________|_||__||||"#                       /      /  __/_____|_  /                /            ''-,                   .
-#                                                                                                               /          ,'      |   |               /        ,        \                  .
-#                                                                                                              /          /        |    \       _     /        |         |                  .
-#                                                                                                            _/\_      _,'        _|_    ',   __,'  _/_         \______,/                   .
-#                                                                                                             ''      '  '        '''      ''''     ''             '''                      .
-#                                                                                                                                                                                           .
-#                                                                                                                                                                                           .
-#                                                                                                                                                                                           .
-#                                                                                                                                                                                           .
-#                                                                                                                                                                                           .
-#                                                                                                                                                                                           .
-]
-for s in header_output:
-    print(s)
-print("")
+#                                                                                       .
+#             _______   _____,,,--,-----------,                                         .
+#           ,' ,'    '-/  /     |_|_,,    ,,  |                                         .
+#         ,' ,'   ,';  /,'  /|   \/  /   /''''                                          .
+#        /  /   ,'-'--: |  | _:   ',/   /                                               .
+#       |  |   ;     |  |   '_,'\   \  |                                                .
+#       ', ',   ;_ __',  ',  \   |   |  \                                               .
+#         ', ',   '-_| \  ',  |  |   |   \                                              .
+#           ', ',       \__/__|  |   |\   \                                             .
+#             ', ',     / ___/__/   /--'   \                                            .
+#               \__\___/  \__\_____/|______|                                            .
+#              _________       .          ____     __________    ____                   .
+#               /      /     ,'|       ,-'    ';  /    /    / ,''   '\                  .
+#              /            /  |     ,'       '' /    /    / /      ,'                  .
+#             /______/    ,'   |    /                /       '',_                       .
+#            /      /  __/_____|_  /                /            ''-,                   .
+#           /          ,'      |   |               /        ,        \                  .
+#          /          /        |    \       _     /        |         |                  .
+#        _/\_      _,'        _|_    ',   __,'  _/_         \______,/                   .
+#         ''      '  '        '''      ''''     ''             '''                      .
+#                                                                                       .
+
+#for s in header_output:
+    #print(s)
+    #header+=s+"\n"
+#print("")
+
+with open("header.txt", "r") as file:
+    print(file.read())
 
 import socket
 import time
@@ -56,6 +54,8 @@ import keyboard
 import re
 
 import requests
+
+import os
 
 update_data = requests.get("https://raw.githubusercontent.com/hi-sobe/catfacts/refs/heads/main/cat.py")
 update_version = re.search("CAT_SCRIPT_VERSION = \"(\\S*)\"", update_data.text)
@@ -634,11 +634,17 @@ def command_cat(args):
     if sys.argv[1] == "tf":
         message_rcon(currentfact)
     elif sys.argv[1] == "cs":
+        if re.search("https://github.com/hi-sobe/catfacts", currentfact): # dont advertise this script to cs players because they are racist and cannot be trusted
+            currentfactindex=random.randint(0,len(catfacts)-1)
+            currentfact = catfacts[currentfactindex]
         message_cs(currentfact)
 
 def command_dog(args):
     currentfactindex=random.randint(0,len(catfacts)-1)
     currentfact = catfacts[currentfactindex]
+    if re.search("https://github.com/hi-sobe/catfacts", currentfact): # dont advertise github repo /dogfacts because it does not exist
+        currentfactindex=random.randint(0,len(catfacts)-1)
+        currentfact = catfacts[currentfactindex]
     currentfact = currentfact.replace("cat", "dog")
     currentfact = currentfact.replace("kitten", "puppy")
     currentfact = currentfact.replace("kitty", "puppy")
@@ -651,7 +657,9 @@ def command_dog(args):
         message_cs(currentfact)
 
 def command_killcat(a):
-    raise ValueError("KILLING CAT")
+    print("\nTERMINATING SCRIPT")
+    os._exit(0)
+    raise ValueError("KILLING CAT") # if for some reason the other exit doesn't work, which i have had issues with in the past
 
 def ident_handle(a):
     localid = 0#math.randint(1,1000)
@@ -680,12 +688,18 @@ doprompt = True
 def command_prompton(a):
     global doprompt
     doprompt = True
-    print("PROMPT ON")
+    if debugmode==True:
+        print("PROMPT ON")
+    else:
+        serverconmessage = "PROMPT ON"
     # echo_game("PROMPT ON")
 def command_promptoff(a):
     global doprompt
     doprompt = False
-    print("PROMPT OFF")
+    if debugmode==True:
+        print("PROMPT OFF")
+    else:
+        print("PROMPT OFF")
     # echo_game("PROMPT OFF")
 
 # #    670 "sobe"              [U:1:1315524182]    22:21       46    0 active
@@ -854,7 +868,7 @@ def cs_connect_handler(a, args):
     allowchatprompt = True
     community_compat = False
     serverconmessage = "Connected to official CS2 server"
-    lasttime = 0
+    lasttime = int(time.time()) - interval + 20
 
 serverconnecting_pattern="Connecting to \\d*"
 def serverconnect_handler(a, args):
