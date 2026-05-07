@@ -46,6 +46,10 @@ from pynput.keyboard import Key, Listener
 import tkinter as tk
 from tkinter import filedialog
 
+from tkinter import *
+from tkinter import ttk
+
+
 from pathlib import Path
 
 from pyKey import pressKey, releaseKey, press, sendSequence, showKeys
@@ -465,6 +469,8 @@ def command_killcat(a):
     print_console_output()
     os._exit(0)
     raise ValueError("KILLING CAT") # if for some reason the other exit doesn't work, which i have had issues with in the past
+def gui_killcat():
+    command_killcat("")
 
 # run after server connection completed
 # currently triggered by phrase "Redownloading all lightmaps", pretty sure this always works. 
@@ -503,6 +509,10 @@ def command_promptoff(a):
     else:
         console_log("Turned prompt off.")
         console_raw("PROMPT OFF",1)
+def gui_prompton():
+    command_prompton("")
+def gui_promptoff():
+    command_promptoff("")
 
 # ran by typing "listplayerids" in tf2 console, can use to get steamids of chat users
 playerids = {}
@@ -515,6 +525,12 @@ def enablescript(a):
     global script_conflict_disabled
     script_conflict_disabled = False
 def disablescript(a):
+    global script_conflict_disabled
+    script_conflict_disabled = True
+def gui_enablescript():
+    global script_conflict_disabled
+    script_conflict_disabled = False
+def gui_disablescript():
     global script_conflict_disabled
     script_conflict_disabled = True
 
@@ -708,7 +724,11 @@ def cs_connect_handler(a, args):
     allowchatprompt = True
     community_compat = False
     serverconmessage = "Connected to official CS2 server"
-    lasttime = int(time.time()) - interval + 20
+    # if started through force start button, wait 5s for alt tab, if started through console server connect pattern wait 20s for connection to finish
+    if a=="GUI":
+        lasttime = int(time.time()) - interval + 5
+    else:
+        lasttime = int(time.time()) - interval + 20
 
 # disable messages, assume community server until proven otherwise
 serverconnecting_pattern="Connecting to \\d*"
@@ -768,16 +788,90 @@ if debugmode == True:
     for index, command in commands.items():
         print("Registered command string: " + index)
 
+# pasted from tkinter docs lol hehe lol 
+# class script_gui:
+
+    # def __init__(self, root):
+
+#global CONSOLE_MESSAGES
+
+# lobal gui_console_output
+
+window = Tk()
+
+# window.geometry("640x285")
+
+style=ttk.Style()
+style.configure("Custom.TFrame", background="gray85", foreground="black")
+style.configure("Custom.TLabel", background="gray85", foreground="black")
+
+window.title("CAT FACTS v" + CAT_SCRIPT_VERSION)
+
+window.protocol("WM_DELETE_WINDOW", lambda: command_killcat("GUI"))
+
+mainframe = ttk.Frame(window, padding=(3, 3, 12, 3), width=640, height=200, style="Custom.TFrame")
+mainframe.grid_propagate(False)
+mainframe.grid(column=0, row=0, sticky=(N, W, E, S))
+
+controlframe = ttk.Frame(window, padding=(3, 3, 12, 0))
+controlframe.grid(column=0, row=1, sticky=(N, W, E, S))
+
+gui_console_output = StringVar()
+output_full = ""
+for line in CONSOLE_MESSAGES:
+    output_full+=line[:100]+"\n"
+gui_console_output.set(output_full[:-1])
+outp = ttk.Label(mainframe, textvariable=gui_console_output, font=("Consolas",12), style="Custom.TLabel")
+outp.grid(column=1,row=1,sticky=(W, E))
+
+ttk.Button(controlframe, text="Kill script", command=lambda: command_killcat("GUI")).grid(column=1, row=2, sticky=W)
+
+ttk.Button(controlframe, text="Disable script", command=lambda: command_disablescript("GUI")).grid(column=1, row=3, sticky=W)
+ttk.Button(controlframe, text="Enable script", command=lambda: command_enablescript("GUI")).grid(column=2, row=3, sticky=W)
+
+ttk.Button(controlframe, text="Disable prompt", command=lambda: command_promptoff("GUI")).grid(column=1, row=4, sticky=W)
+ttk.Button(controlframe, text="Enable prompt", command=lambda: command_prompton("GUI")).grid(column=2, row=4, sticky=W)
+
+# these buttons are wider so they need a new frame to not fuck everything up
+controlframe2 = ttk.Frame(window, padding=(3, 0, 12, 0))
+controlframe2.grid(column=0, row=2, sticky=(N, W, E, S))
+
+if game_type=="tf":
+    ttk.Button(controlframe2, text="Refresh connection status", command=lambda: command_rcon("status")).grid(column=1, row=5, sticky=W)
+else:
+    ttk.Button(controlframe2, text="Force start script (CS2)", command=lambda: cs_connect_handler("GUI", "GUI")).grid(column=1, row=5, sticky=W)
+
+infoframe = ttk.Frame(window, padding=(3, 0, 12, 3))
+infoframe.grid(column=0, row=3, sticky=(N, W, E, S))
+ttk.Label(infoframe, text="CAT FACTS BOT v" + CAT_SCRIPT_VERSION + " by Sobe.\nCurrently in beta.", font=("TkDefaultFont",9)).grid(column=2,row=5,sticky=E)
+
+def update_gui():
+    global gui_console_output
+    global window
+    global CONSOLE_MESSAGES
+    output_full = ""
+    for line in CONSOLE_MESSAGES:
+        output_full+=line[:100].strip()+"\n"
+    gui_console_output.set(output_full[:-1])
+    # window.after(100, update_gui)
+update_gui()
+
+# script_gui(root)
+# root.mainloop()
+
 # used for following console.log output
 def follow(filename):
     with open(filename, 'r', errors="replace") as f:
         # Move to the end of the file if you only want new data
         f.seek(0, 2) 
         while True:
+            update_gui()
+            window.update_idletasks()
+            window.update()
             try:
                 line = f.readline()
                 if not line:
-                    time.sleep(0.1)  # Sleep briefly to avoid 100% CPU usage
+                    time.sleep(0.05)  # Sleep briefly to avoid 100% CPU usage
                     continue
                 yield line
             except UnicodeDecodeError: # this shouldnt happen with errors=replace but watever lool
@@ -855,3 +949,4 @@ for new_line in follow(path_use):
         havewesentstatusyet = True
 
     print_console_output()
+    update_gui()

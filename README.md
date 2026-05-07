@@ -130,4 +130,5 @@ Python commands use the same pattern system as simple pattern-match commands, bu
 Command scripts are called with the `exec()` function, which means there is NO sandboxing or security. Code run through this system can break the script, or even break your computer.\
 *ONLY USE THIS TO RUN CODE THAT YOU TRUST!!*
 
-Command scripts have full access to the global namespace, variables defined in command scripts can overwrite variables defined in the main script, potentially breaking it.
+Command scripts have full access to the global namespace, variables defined in command scripts can overwrite variables defined in the main script, potentially breaking it.\
+When defining variables in command scripts, check main script to make sure variable names are not already in use.
