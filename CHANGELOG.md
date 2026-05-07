@@ -1,3 +1,6 @@
+## 1.2.0
+* gui
+
 ## 1.1.4
 * New command `set_cooldown x`
 	* Sets chat message cooldown to `x` seconds
