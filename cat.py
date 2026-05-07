@@ -1,4 +1,4 @@
-CAT_SCRIPT_VERSION = "1.1.4"
+CAT_SCRIPT_VERSION = "1.2.0"
 
 #                                                                                       .
 #             _______   _____,,,--,-----------,                                         .
