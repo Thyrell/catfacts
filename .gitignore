@@ -4,3 +4,4 @@ dist/
 build/
 cat.spec
 cat.exe
+releases/
