@@ -1,3 +1,8 @@
+## 1.2.2
+* All versions from now on will also be released as an executable that can be ran directly, instead of running the script through terminal
+	* These builds are compiled with [pyinstaller](https://pyinstaller.org). If you've made any modifications to the core script, it can be recompiled using that tool - once compiled, the executable must be placed in the same folder as the script to work.
+* Error handling for rcon functions to prevent script crash if launched while TF2 is not running.
+
 ## 1.2.1
 * Fixed crash if `catsettings.txt` not initialized
 	* Script would register `path_tf` and `path_cs` as empty strings and check if `Path("").exists()==True` (always returns True??), attempt to open file `""`, and crash on main loop.

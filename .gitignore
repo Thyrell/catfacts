@@ -1,1 +1,6 @@
 catsettings.txt
+pyinstaller.exe
+dist/
+build/
+cat.spec
+cat.exe

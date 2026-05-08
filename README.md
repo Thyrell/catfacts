@@ -1,8 +1,11 @@
 ![GATITO IMAGE](gatito.jpg)
 
-CURRENT VERSION: 1.2.1\
+CURRENT VERSION: 1.2.2\
 [CHANGELOG](CHANGELOG.md)\
 If you use this software, please report issues, feedback, suggestions to me on [STEAM](https://steamcommunity.com/id/isthatsobe/) or [EMAIL](mailto:sobefromgithub@gmail.com) me at sobefromgithub@gmail.com
+
+## (NEW) Executable info
+As of v1.2.2, this script can be downloaded as an executable under Releases. These builds are compiled with [pyinstaller](https://pyinstaller.org).
 
 ## Dependencies
 This script requires the following python libraries:

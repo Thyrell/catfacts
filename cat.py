@@ -1,4 +1,4 @@
-CAT_SCRIPT_VERSION = "1.2.1"
+CAT_SCRIPT_VERSION = "1.2.2"
 
 #                                                                                       .
 #             _______   _____,,,--,-----------,                                         .
@@ -332,47 +332,7 @@ PORT = 27015
 # execute command (m) as tf2 console command thru rcon
 def command_rcon(m):
     global debugmode
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.connect((HOST, PORT))
-
-        message = msgpacket(rconpassword, 3)
-        s.send(message)     # Send packet
-        data = s.recv(1024)             # Receive packet
-        # print(f"Received from server: {data}")
-
-        time.sleep(.1)
-
-        message=msgpacket(m, 2)
-        s.send(message)     # Send packet
-        if debugmode == True:
-            print(message)
-        # print(statuscommand)
-
-        response = s.recv(4096)
-
-        time.sleep(.1)
-
-        message = msgpacket_id("", 0, 254)
-        s.send(message)     # Send packet
-
-        # this stuff only works on local servers
-        overflowsuccess = False
-        while overflowsuccess == False:
-            data = s.recv(4096)
-            # if debugmode == True:
-                # print(f"Received from server: {data}")
-            response = response+data
-            if data.find(emptyresponse) != -1:
-                overflowsuccess = True
-                # print("whoop!")
-    return data
-
-# execute command (say "m") as tf2 console command
-blockmessages = False
-def message_rcon(m):
-    global debugmode
-    global script_conflict_disabled
-    if script_conflict_disabled == False and blockmessages == False:
+    try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.connect((HOST, PORT))
 
@@ -382,20 +342,72 @@ def message_rcon(m):
             # print(f"Received from server: {data}")
 
             time.sleep(.1)
-            if community_compat == True:
-                message=msgpacket("say \x22" + bot_ident + fingerprint_community + m + "\x22", 2)
-            else:
-                message=msgpacket("say \x22" + bot_ident + fingerprint + m + "\x22", 2)
+
+            message=msgpacket(m, 2)
             s.send(message)     # Send packet
             if debugmode == True:
                 print(message)
-            data = s.recv(4096)             # Receive packet
-            if debugmode == True:
-                print(f"Received from server: {data}")
-            data = s.recv(4096)             # Receive packet
-            if debugmode == True:
-                print(f"Received from server: {data}")
-            # print(f"Received from server: {data}")
+            # print(statuscommand)
+
+            response = s.recv(4096)
+
+            time.sleep(.1)
+
+            message = msgpacket_id("", 0, 254)
+            s.send(message)     # Send packet
+
+            # this stuff only works on local servers
+            overflowsuccess = False
+            while overflowsuccess == False:
+                data = s.recv(4096)
+                # if debugmode == True:
+                    # print(f"Received from server: {data}")
+                response = response+data
+                if data.find(emptyresponse) != -1:
+                    overflowsuccess = True
+                    # print("whoop!")
+        return data
+    except ConnectionRefusedError:
+        if debugmode==True:
+            print("RCON failure - make sure TF2 is running before launching script!")
+        else:
+            console_log("RCON connection refused - make sure TF2 is running before launching script.")
+
+# execute command (say "m") as tf2 console command
+blockmessages = False
+def message_rcon(m):
+    global debugmode
+    global script_conflict_disabled
+    if script_conflict_disabled == False and blockmessages == False:
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.connect((HOST, PORT))
+
+                message = msgpacket(rconpassword, 3)
+                s.send(message)     # Send packet
+                data = s.recv(1024)             # Receive packet
+                # print(f"Received from server: {data}")
+
+                time.sleep(.1)
+                if community_compat == True:
+                    message=msgpacket("say \x22" + bot_ident + fingerprint_community + m + "\x22", 2)
+                else:
+                    message=msgpacket("say \x22" + bot_ident + fingerprint + m + "\x22", 2)
+                s.send(message)     # Send packet
+                if debugmode == True:
+                    print(message)
+                data = s.recv(4096)             # Receive packet
+                if debugmode == True:
+                    print(f"Received from server: {data}")
+                data = s.recv(4096)             # Receive packet
+                if debugmode == True:
+                    print(f"Received from server: {data}")
+                # print(f"Received from server: {data}")
+        except ConnectionRefusedError:
+            if debugmode==True:
+                print("RCON failure - make sure TF2 is running before launching script!")
+            else:
+                console_log("RCON connection refused - make sure TF2 is running before launching script.")
 
 # write command (say "m") to cs2 config "sobecatfacts" and simulate keypress to key defined by csmsgbind to execute it
 def message_cs(m):
@@ -802,6 +814,9 @@ if debugmode == True:
 # lobal gui_console_output
 
 window = Tk()
+
+window.attributes("-topmost", True)
+#window.update()
 
 # window.geometry("640x285")
 
