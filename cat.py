@@ -1,4 +1,4 @@
-CAT_SCRIPT_VERSION = "1.2.0"
+CAT_SCRIPT_VERSION = "1.2.1"
 
 #                                                                                       .
 #             _______   _____,,,--,-----------,                                         .
@@ -60,6 +60,20 @@ import re
 import requests
 
 import os
+
+# debugmode: raw print() all tf2 console output, plus some debug info
+# silent:    disable chat prompt
+debugmode = False
+silent = False
+if len(sys.argv)>=3:
+    if sys.argv[2] == "debug" or sys.argv[2] == "d":
+        debugmode = True
+        print("STARTING IN DEBUG MODE...")
+    elif sys.argv[2] == "silent" or sys.argv[2] == "s":
+        silent = True
+    elif sys.argv[2] == "sd":
+        silent = True
+        debugmode = True
 
 # UPDATE CHECKER
 update_data = requests.get("https://raw.githubusercontent.com/hi-sobe/catfacts/refs/heads/main/cat.py")
@@ -128,31 +142,20 @@ def clearlines(n):
         clearer+="\r"+LINE_UP+LINE_CLEAR
     print(clearer, end="")
 def print_console_output():
-    clearlines(CONSOLE_MESSAGE_LIMIT)
-    cm=""
-    for i in range(CONSOLE_MESSAGE_LIMIT):
-        if i<len(CONSOLE_MESSAGES):
-            cm=cm+CONSOLE_MESSAGES[i][:100]+"\n"
-        else:
-            cm=cm+"\n"
-    print(cm,end="")
-cm1=LINE_UP
-for line in CONSOLE_MESSAGES:
-    cm1+="\n"+line
-print(cm1)
-
-# debugmode: raw print() all tf2 console output, plus some debug info
-# silent:    disable chat prompt
-debugmode = False
-silent = False
-if len(sys.argv)>=3:
-    if sys.argv[2] == "debug" or sys.argv[2] == "d":
-        debugmode = True
-    elif sys.argv[2] == "silent" or sys.argv[2] == "s":
-        silent = True
-    elif sys.argv[2] == "sd":
-        silent = True
-        debugmode = True
+    if debugmode==False:
+        clearlines(CONSOLE_MESSAGE_LIMIT)
+        cm=""
+        for i in range(CONSOLE_MESSAGE_LIMIT):
+            if i<len(CONSOLE_MESSAGES):
+                cm=cm+CONSOLE_MESSAGES[i][:100]+"\n"
+            else:
+                cm=cm+"\n"
+        print(cm,end="")
+if debugmode==False:
+    cm1=LINE_UP
+    for line in CONSOLE_MESSAGES:
+        cm1+="\n"+line
+    print(cm1)
 
 # load script settings
 path_tf = ""
@@ -185,12 +188,13 @@ if sys.argv[1]=="tf":
         rconpassword = input("rcon password not set! please enter your rcon password: ")
         with open("catsettings.txt", "a") as f:
             f.write("RCON_PASSWORD: " + rconpassword + "\n")
-    if not Path(path_tf).exists():
+    if not Path(path_tf).is_file():
         print("tf2 console.log not found! please select path to \\tf\\console.log now.")
         time.sleep(2)
         path_tf = filedialog.askopenfilename()
         print(path_tf)
-        if not Path(path_tf).exists():
+        if not Path(path_tf).is_file():
+            # if user somehow inputs something that is not a file thru file browser. can this happen?
             raise ValueError("how did you fuck this up")
         match = re.search("/tf/console.log", path_tf)
         if not match:
@@ -202,12 +206,12 @@ if sys.argv[1]=="tf":
 if sys.argv[1]=="cs":
     if debugmode==True:
         print("LAUNCHING IN CS MODE")
-    if not Path(path_cs).exists():
+    if not Path(path_cs).is_file():
         print("cs2 console.log not found! please select path to \\Counter-Strike Global Offensive\\game\\csgo\\console.log now.")
         time.sleep(2)
         path_cs = filedialog.askopenfilename()
         print(path_cs)
-        if not Path(path_cs).exists():
+        if not Path(path_cs).is_file():
             raise ValueError("how did you fuck this up")
         match = re.search("/csgo/console.log", path_cs)
         if not match:

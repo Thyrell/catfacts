@@ -1,3 +1,7 @@
+## 1.2.1
+* Fixed crash if `catsettings.txt` not initialized
+	* Script would register `path_tf` and `path_cs` as empty strings and check if `Path("").exists()==True` (always returns True??), attempt to open file `""`, and crash on main loop.
+
 ## 1.2.0
 * gui
 
