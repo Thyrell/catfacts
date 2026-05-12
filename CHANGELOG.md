@@ -1,3 +1,21 @@
+## 1.2.3
+* Loading bar to display time left until next prompt
+	* Red bar: prompt disabled
+	* Orange bar: prompt enabled, message slowdown active
+	* Green bar: prompt enabled
+* No longer print output to both terminal and gui window
+* No longer print loading bar in text output
+* Removed chat command registries for certain script controls now handled by gui.
+	* `killcat` - killed script
+	* `cat_on` - enabled prompt
+	* `cat_off` - disabled prompt
+	* `script_enable` - enabled script through conflict handling
+	* `script_disable` - disabled script through conflict handling
+	* `community_off` - disabled community server fingerprint
+	* `community_on` - enabled community server fingerprint
+* Previously, any chat message from any user could trigger these commands.
+* sudoku is there
+
 ## 1.2.2
 * All versions from now on will also be released as an executable that can be ran directly, instead of running the script through terminal
 	* These builds are compiled with [pyinstaller](https://pyinstaller.org). If you've made any modifications to the core script, it can be recompiled using that tool - once compiled, the executable must be placed in the same folder as the script to work.

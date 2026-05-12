@@ -1,8 +1,17 @@
-![GATITO IMAGE](gatito.jpg)
+![script](catfacts.png)
 
-CURRENT VERSION: 1.2.2\
+CURRENT VERSION: 1.2.3\
 [CHANGELOG](CHANGELOG.md)\
 If you use this software, please report issues, feedback, suggestions to me on [STEAM](https://steamcommunity.com/id/isthatsobe/) or [EMAIL](mailto:sobefromgithub@gmail.com) me at sobefromgithub@gmail.com
+
+This script is a *fully vac-safe* general chat handler for TF2 and CS2, capable of processing messages sent in in-game chat and sending automated messages to respond to them. Unlike most of the bot chatscripts you see in those games, it does not directly read from or write to program memory, so it cannot be flagged as a cheat program by official or third-party anticheats.
+
+Incoming chat messages are processed by reading from `console.log` - source games can be configured to write all console output to this file, allowing users to process in-game chat in real time without reading program memory.
+
+Outgoing chat messages are processed in two ways, depending on which game you're playing:
+* Source1 games like TF2 allow local use of the [RCON protocol](https://developer.valvesoftware.com/wiki/Source_RCON_Protocol) - it is intended for remote server management, but can also be used by a client when connected to a server. This script uses an RCON connection from localhost to send messages, by executing `say` commands.
+* Client-side RCON is not available in CS2, so to execute commands in CS2 this script instead writes commands to a config file, binds nonexistent key `f13` to execute that config, and simulates an `f13` keypress every time a command is to be executed.
+	* Because of this limitation, the script cannot execute commands in CS2 if some condition is preventing the game from handling keybinds (eg. if the user is alt-tabbed, has chat open, etc)
 
 ## (NEW) Executable info
 As of v1.2.2, this script can be downloaded as an executable under Releases. These builds are compiled with [pyinstaller](https://pyinstaller.org).
@@ -60,14 +69,7 @@ Currently supported commands:
 
 | Command  | Function |
 | :------------- |:-------------|
-| killcat      | Shuts down the script     |
-| cat_on      | Turns on automatic chat prompt     |
-| cat_off      | Turns off automatic chat prompt     |
 | listplayerids | Prints a list of all connected players + steamids |
-| script_enable | Enables script - script can be automatically disabled if two instances are running on the same server. Use this to turn it back on. |
-| script_disable | Disables the script. |
-| community_on  | Forces community server compatibility mode on, to prevent chat messages from being filtered for invalid characters |
-| community_off | Forces community server compatibility mode off (will be turned back on after every `status` command if on a community server) |
 | * set_cooldown `number` | Sets chat message cooldown to `number` to reduce chat timeout |
 
 \* *Commands that require arguments cannot be ran just by typing them in console and parsing the `unknown command: ` output, you must use `echo [command]`*
@@ -135,3 +137,5 @@ Command scripts are called with the `exec()` function, which means there is NO s
 
 Command scripts have full access to the global namespace, variables defined in command scripts can overwrite variables defined in the main script, potentially breaking it.\
 When defining variables in command scripts, check main script to make sure variable names are not already in use.
+
+![el gatito](gatito.jpg)

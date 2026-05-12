@@ -5,3 +5,6 @@ build/
 cat.spec
 cat.exe
 releases/
+custom_py/
+!custom_py/cat.py
+!custom_py/kitties

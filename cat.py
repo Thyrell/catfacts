@@ -1,4 +1,4 @@
-CAT_SCRIPT_VERSION = "1.2.2"
+CAT_SCRIPT_VERSION = "1.2.3"
 
 #                                                                                       .
 #             _______   _____,,,--,-----------,                                         .
@@ -24,6 +24,11 @@ CAT_SCRIPT_VERSION = "1.2.2"
 
 with open("header.txt", "r") as file:
     print(file.read())
+
+import ctypes
+
+myappid = 'mycompany.myproduct.subproduct.version' # arbitrary string
+ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 
 import socket
 import time
@@ -113,7 +118,7 @@ script_conflict_disabled = False
 allowchatprompt = False
 
 # number of lines to display in terminal output (default: 10)
-CONSOLE_MESSAGE_LIMIT = 10
+CONSOLE_MESSAGE_LIMIT = 20
 # terminal output handler
 serverconmessage = ""
 CONSOLE_MESSAGES = [
@@ -151,11 +156,11 @@ def print_console_output():
             else:
                 cm=cm+"\n"
         print(cm,end="")
-if debugmode==False:
-    cm1=LINE_UP
-    for line in CONSOLE_MESSAGES:
-        cm1+="\n"+line
-    print(cm1)
+#if debugmode==False:
+#    cm1=LINE_UP
+#    for line in CONSOLE_MESSAGES:
+#        cm1+="\n"+line
+#    print(cm1)
 
 # load script settings
 path_tf = ""
@@ -239,9 +244,9 @@ csmsgbind = "f13"
 # timing for chat prompt in seconds
 # every time chat prompt is sent, interval is set to a random value between intervalmin and intervalmax
 lasttime = 0
-interval = 120
-intervalmin = 90
-intervalmax = 180
+interval = 180
+intervalmin = 150
+intervalmax = 210
 
 # used to distinguish chat messages from ordinary console output
 # chat messages separated by two spaces in tf2, one space in cs2
@@ -280,7 +285,7 @@ def roll_fingerprint():
         print(fingerprint_community)
     else:
         console_log("set community fingerprint: " + fingerprint_community)
-    print_console_output()
+    #print_console_output()
 roll_fingerprint()
 
 # default to using community compatibility mode, set to False when client connects to a valve pub server
@@ -424,15 +429,45 @@ def command_cs(m):
     if debugmode==True:
         print("EXECUTED COMMAND(s):\n"+m)
 
+# all values in seconds
 # cooldown time between chat messages, to prevent chat cooldown
-message_cooldown = 1
+MESSAGE_TIMEOUT = False # setting this does nothing, used for telling other parts of the script when slowdown is active
+message_cooldown = .5
+message_cooldown_default = message_cooldown
+message_cooldown_spammed = 4
 time_last=0
+
+# count message as spam if delay less than spam_trigger
+spam_trigger=2
+# increased every time a message triggers spam_trigger
+spam_count=0
+# increase message cooldown to message_cooldown_spammed if spam_trigger is triggered spam_threshold times in a row
+spam_threshold=4
+# reset message cooldown if delay between last and current message is more than spam_reset_trigger
+spam_reset_trigger=5
 
 # universal message handler
 def cat_message(m):
     global time_last
+    global message_cooldown
+    global spam_count
+    global message_cooldown_default
+    global message_cooldown_spammed
+    global spam_trigger
+    global spam_reset_trigger
+    global spam_threshold
+    global MESSAGE_TIMEOUT
     cur = time.time()
     if cur>time_last+message_cooldown:
+        if cur<time_last+spam_trigger:
+            spam_count+=1
+        elif cur>time_last+spam_reset_trigger:
+            spam_count=0
+            message_cooldown = message_cooldown_default
+            MESSAGE_TIMEOUT = False
+        if spam_count>=spam_threshold:
+            message_cooldown = message_cooldown_spammed
+            MESSAGE_TIMEOUT = True
         if sys.argv[1]=="tf":
             message_rcon(m)
         else:
@@ -440,7 +475,12 @@ def cat_message(m):
         console_log("MSG: " + m)
         time_last=cur
     else:
+        #print(spam_count, MESSAGE_TIMEOUT)
+        spam_count+=1
         console_log("###: (NOT SENT) " + m)
+        if spam_count>spam_threshold:
+            message_cooldown = message_cooldown_spammed
+            MESSAGE_TIMEOUT = True
 # universal command handler
 def cat_command(m):
     if sys.argv[1]=="tf":
@@ -482,7 +522,7 @@ def echo_game(m):
 def command_killcat(a):
     console_raw("SCRIPT TERMINATED",0)
     console_raw("SCRIPT TERMINATED",1)
-    print_console_output()
+    #print_console_output()
     os._exit(0)
     raise ValueError("KILLING CAT") # if for some reason the other exit doesn't work, which i have had issues with in the past
 def gui_killcat():
@@ -506,6 +546,12 @@ def connectionfinished_handler(a):
     community_compat=True
     if maxplayers_over_32 == False:
         allowchatprompt = False
+
+pub_disconnect = "Disconnecting from abandoned match server"
+def disconnect_handler(a):
+    global allowchatprompt
+    allowchatprompt = False
+    console_log("Disconnected from public matchmaking server, disabling prompt.")
 
 # turn chat prompts on/off
 doprompt = True
@@ -638,16 +684,17 @@ def do_file_command(c,a):
     message_rcon(a[selekta])
 
 commands = {
-    "killcat": command_killcat,
+    #"killcat": command_killcat,
     exitstring: command_killcat,
-    "cat_on": command_prompton,
-    "cat_off": command_promptoff,
+    #"cat_on": command_prompton,
+    #"cat_off": command_promptoff,
     lightmaps: connectionfinished_handler,
     "listplayerids": printplayers,
-    "script_enable": enablescript,
-    "script_disable": disablescript,
-    "community_on": forcecommunitycompat_on,
-    "community_off": forcecommunitycompat_off
+    #"script_enable": enablescript,
+    #"script_disable": disablescript,
+    #"community_on": forcecommunitycompat_on,
+    #"community_off": forcecommunitycompat_off,
+    pub_disconnect: disconnect_handler
 }
 
 # detect steamids from status output, currently not used for anything
@@ -804,56 +851,63 @@ if debugmode == True:
     for index, command in commands.items():
         print("Registered command string: " + index)
 
-# pasted from tkinter docs lol hehe lol 
-# class script_gui:
-
-    # def __init__(self, root):
-
-#global CONSOLE_MESSAGES
-
-# lobal gui_console_output
+##############################
+############################## GUI STUFF
+##############################
 
 window = Tk()
 
-window.attributes("-topmost", True)
-#window.update()
-
-# window.geometry("640x285")
+#window.attributes("-topmost", True) #uncomment to force window always on top, good for debuggling
 
 style=ttk.Style()
+#print(style.theme_names())
+style.theme_use('winnative')
 style.configure("Custom.TFrame", background="gray85", foreground="black")
 style.configure("Custom.TLabel", background="gray85", foreground="black")
 
 window.title("CAT FACTS v" + CAT_SCRIPT_VERSION)
 
+window.iconbitmap('gatita.ico')
+
 window.protocol("WM_DELETE_WINDOW", lambda: command_killcat("GUI"))
 
-mainframe = ttk.Frame(window, padding=(3, 3, 12, 3), width=640, height=200, style="Custom.TFrame")
+mainframe = ttk.Frame(window, padding=(3, 0, 12, 3), width=640, height=200, style="Custom.TFrame")
 mainframe.grid_propagate(False)
 mainframe.grid(column=0, row=0, sticky=(N, W, E, S))
 
+barsframe = ttk.Frame(window, padding=(3, 3, 12, 0))
+barsframe.grid(column=0, row=1, sticky=(N, W, E, S))
+
 controlframe = ttk.Frame(window, padding=(3, 3, 12, 0))
-controlframe.grid(column=0, row=1, sticky=(N, W, E, S))
+controlframe.grid(column=0, row=2, sticky=(N, W, E, S))
 
 gui_console_output = StringVar()
 output_full = ""
 for line in CONSOLE_MESSAGES:
     output_full+=line[:100]+"\n"
 gui_console_output.set(output_full[:-1])
-outp = ttk.Label(mainframe, textvariable=gui_console_output, font=("Consolas",12), style="Custom.TLabel")
+outp = ttk.Label(mainframe, textvariable=gui_console_output, font=("Consolas",9), style="Custom.TLabel")
 outp.grid(column=1,row=1,sticky=(W, E))
 
-ttk.Button(controlframe, text="Kill script", command=lambda: command_killcat("GUI")).grid(column=1, row=2, sticky=W)
+gui_prompt_timeleft = StringVar()
+gui_prompt_timeleft.set("  Not currently ticking prompt.")
+style.configure("TProgressbar", background='green')
+prompt_bar = ttk.Progressbar(barsframe, orient="horizontal", length=200, mode="determinate", style="TProgressbar")
+prompt_bar.grid(column=1,row=2,sticky=W)
+prompt_text = ttk.Label(barsframe, textvariable=gui_prompt_timeleft)
+prompt_text.grid(column=1,row=1,sticky=W)
 
-ttk.Button(controlframe, text="Disable script", command=lambda: command_disablescript("GUI")).grid(column=1, row=3, sticky=W)
-ttk.Button(controlframe, text="Enable script", command=lambda: command_enablescript("GUI")).grid(column=2, row=3, sticky=W)
+ttk.Button(controlframe, text="Kill script", command=lambda: command_killcat("GUI")).grid(column=1, row=2, sticky=(W,E))
 
-ttk.Button(controlframe, text="Disable prompt", command=lambda: command_promptoff("GUI")).grid(column=1, row=4, sticky=W)
-ttk.Button(controlframe, text="Enable prompt", command=lambda: command_prompton("GUI")).grid(column=2, row=4, sticky=W)
+ttk.Button(controlframe, text="Disable script", command=lambda: disablescript("GUI")).grid(column=1, row=3, sticky=(W,E))
+ttk.Button(controlframe, text="Enable script", command=lambda: enablescript("GUI")).grid(column=2, row=3, sticky=(W,E))
+
+ttk.Button(controlframe, text="Disable prompt", command=lambda: command_promptoff("GUI")).grid(column=1, row=4, sticky=(W,E))
+ttk.Button(controlframe, text="Enable prompt", command=lambda: command_prompton("GUI")).grid(column=2, row=4, sticky=(W,E))
 
 # these buttons are wider so they need a new frame to not fuck everything up
 controlframe2 = ttk.Frame(window, padding=(3, 0, 12, 0))
-controlframe2.grid(column=0, row=2, sticky=(N, W, E, S))
+controlframe2.grid(column=0, row=3, sticky=(N, W, E, S))
 
 if game_type=="tf":
     ttk.Button(controlframe2, text="Refresh connection status", command=lambda: command_rcon("status")).grid(column=1, row=5, sticky=W)
@@ -861,18 +915,59 @@ else:
     ttk.Button(controlframe2, text="Force start script (CS2)", command=lambda: cs_connect_handler("GUI", "GUI")).grid(column=1, row=5, sticky=W)
 
 infoframe = ttk.Frame(window, padding=(3, 0, 12, 3))
-infoframe.grid(column=0, row=3, sticky=(N, W, E, S))
+infoframe.grid(column=0, row=4, sticky=(N, W, E, S))
 ttk.Label(infoframe, text="CAT FACTS BOT v" + CAT_SCRIPT_VERSION + " by Sobe.\nCurrently in beta.", font=("TkDefaultFont",9)).grid(column=2,row=5,sticky=E)
+
+style.configure("Custom.Horizontal.TProgressbar", background='green')
+style.configure("Orange.Horizontal.TProgressbar", 
+                troughcolor='gray', 
+                background='orange', 
+                thickness=20)
+style.configure("Red.Horizontal.TProgressbar", 
+            troughcolor='gray', 
+            background='red', 
+            thickness=20)
 
 def update_gui():
     global gui_console_output
     global window
     global CONSOLE_MESSAGES
+    global prompt_bar
+    global prompt_text
+    global allowchatprompt
+    global doprompt
+    global MESSAGE_TIMEOUT
     output_full = ""
     for line in CONSOLE_MESSAGES:
         output_full+=line[:100].strip()+"\n"
     gui_console_output.set(output_full[:-1])
     # window.after(100, update_gui)
+
+    if allowchatprompt==True and doprompt==True:
+        if MESSAGE_TIMEOUT==False:
+            #prompt_bar["style"]="Green.Horizontal.TProgressbar"
+            style.configure("TProgressbar", background='green')
+        else:
+            #prompt_bar["style"]="Orange.Horizontal.TProgressbar"
+            style.configure("TProgressbar", background='orange')
+        # update progress bar
+        curtime = int(time.time())
+        timeuntil = (lasttime+interval)-curtime
+        perc = (interval-timeuntil)/interval
+        if timeuntil>0:
+            prompt_bar["value"] = int(perc*200)/2
+            gui_prompt_timeleft.set(" Next prompt in " + str(timeuntil) + " seconds")
+        else:
+            if int(time.time()*4)%2==0:
+                prompt_bar["value"] = 100
+            else:
+                prompt_bar["value"] = 0
+            gui_prompt_timeleft.set(" Next prompt ready.")
+    else:
+        gui_prompt_timeleft.set(" Prompt disabled.")
+        prompt_bar["value"] = 100
+        style.configure("TProgressbar", background='red')
+        #prompt_bar["style"]="Red.Horizontal.TProgressbar"
 update_gui()
 
 # script_gui(root)
@@ -935,7 +1030,11 @@ for new_line in follow(path_use):
                 else:
                     percstring+="#"
             percstring+="] Next prompt in " + str(timeuntil) + " seconds"
-            console_raw(percstring,1)
+            if doprompt==True:
+                # console_raw(percstring,1)
+                console_raw("[PROMPT ENABLED]",1)
+            else:
+                console_raw("[PROMPT DISABLED]",1)
     for index, command in commands.items():
         if new_line.find(index) != -1:
             command(new_line)
@@ -967,5 +1066,5 @@ for new_line in follow(path_use):
         #command_rcon("echo CAT_CONFIRM_CONNECTION_PROCESS")
         havewesentstatusyet = True
 
-    print_console_output()
+    #print_console_output()
     update_gui()
